@@ -6,7 +6,7 @@ charset-normalizer==3.4.1
 click==8.1.7
 croniter==6.0.0
 dotenv==0.9.9
-hyrex==0.9.10
+hyrex==0.9.11
 idna==3.10
 jmespath==1.0.1
 markdown-it-py==3.0.0
