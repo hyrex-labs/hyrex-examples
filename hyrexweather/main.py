@@ -48,6 +48,10 @@ def hello_performance_times_10():
     for _ in range(10):
         hello_performance.send()
 
+@hy.task
+def hello_performance_times_n(n: int):
+    for _ in range(n):
+        hello_performance.send()
 
 if __name__ == "__main__":
     check_and_notify()
