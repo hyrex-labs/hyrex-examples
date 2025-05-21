@@ -59,7 +59,7 @@ def hello_performance_times_n(n: int):
 @hy.task
 def hello_performance_times_n1_times_n2(n1: int, n2: int):
     for _ in range(n1):
-        hello_performance_times_n.send(n2)
+        hello_performance_times_n.send(n=n2)
 
 
 if __name__ == "__main__":
