@@ -43,15 +43,24 @@ def check_and_notify():
 def hello_performance():
     print("hello performance!")
 
+
 @hy.task
 def hello_performance_times_10():
     for _ in range(10):
         hello_performance.send()
 
+
 @hy.task
 def hello_performance_times_n(n: int):
     for _ in range(n):
         hello_performance.send()
+
+
+@hy.task
+def hello_performance_times_n1_times_n2(n1: int, n2: int):
+    for _ in range(n1):
+        hello_performance_times_n.send(n2)
+
 
 if __name__ == "__main__":
     check_and_notify()
