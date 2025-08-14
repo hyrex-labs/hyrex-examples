@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            height: 100vh;
+            background: #f5f5f5;
+        }
+        .sidebar {
+            width: 250px;
+            background: white;
+            border-right: 1px solid #ddd;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .sidebar h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        .new-chat-btn {
+            width: 100%;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .new-chat-btn:hover {
+            background: #0056b3;
+        }
+        .chat-list {
+            list-style: none;
+        }
+        .chat-item {
+            padding: 10px;
+            margin-bottom: 5px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .chat-item:hover {
+            background: #e9ecef;
+        }
+        .chat-item.active {
+            background: #007bff;
+            color: white;
+        }
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: white;
+            margin: 20px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 10px;
+            max-width: 70%;
+        }
+        .message.user {
+            background: #007bff;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        .message.assistant {
+            background: #f1f3f5;
+            color: #333;
+        }
+        .message-time {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+        .input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #ddd;
+        }
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+        .message-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .send-btn {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .send-btn:hover {
+            background: #0056b3;
+        }
+        .send-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+        }
+        .loading-message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 10px;
+            max-width: 70%;
+            background: #f1f3f5;
+            color: #333;
+        }
+        .loading-dots {
+            display: inline-block;
+        }
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        @keyframes dots {
+            0% { content: ''; }
+            25% { content: '.'; }
+            50% { content: '..'; }
+            75% { content: '...'; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Chats</h2>
+        <button class="new-chat-btn" onclick="startNewChat()">Start New Chat</button>
+        <ul class="chat-list" id="chatList"></ul>
+    </div>
+    
+    <div class="main">
+        <div class="chat-container" id="chatContainer">
+            <div class="empty-state">Select or start a chat to begin</div>
+        </div>
+        <div class="input-container" id="inputContainer" style="display: none;">
+            <div class="input-wrapper">
+                <input type="text" class="message-input" id="messageInput" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000/api';
+        let currentConversationId = null;
+        let pollInterval = null;
+
+        // Load conversations on startup
+        loadConversations();
+
+        async function loadConversations() {
+            try {
+                const response = await fetch(`${API_URL}/conversations`);
+                const conversations = await response.json();
+                
+                const chatList = document.getElementById('chatList');
+                chatList.innerHTML = '';
+                
+                conversations.forEach(conv => {
+                    const li = document.createElement('li');
+                    li.className = 'chat-item';
+                    if (conv.id === currentConversationId) {
+                        li.classList.add('active');
+                    }
+                    li.onclick = () => selectConversation(conv.id);
+                    li.innerHTML = `
+                        <div>Chat #${conv.id}</div>
+                        <div style="font-size: 12px; opacity: 0.7;">${conv.message_count || 0} messages</div>
+                    `;
+                    chatList.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Error loading conversations:', error);
+            }
+        }
+
+        async function startNewChat() {
+            try {
+                const response = await fetch(`${API_URL}/conversations`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                const data = await response.json();
+                
+                currentConversationId = data.conversation_id;
+                document.getElementById('inputContainer').style.display = 'block';
+                document.getElementById('chatContainer').innerHTML = '';
+                
+                loadConversations();
+                startPolling();
+            } catch (error) {
+                console.error('Error creating conversation:', error);
+            }
+        }
+
+        async function selectConversation(conversationId) {
+            currentConversationId = conversationId;
+            document.getElementById('inputContainer').style.display = 'block';
+            
+            // Update active state
+            document.querySelectorAll('.chat-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            loadMessages();
+            startPolling();
+        }
+
+        async function loadMessages() {
+            if (!currentConversationId) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/conversations/${currentConversationId}/messages`);
+                const messages = await response.json();
+                
+                const chatContainer = document.getElementById('chatContainer');
+                chatContainer.innerHTML = '';
+                
+                if (messages.length === 0) {
+                    chatContainer.innerHTML = '<div class="empty-state">No messages yet. Start typing!</div>';
+                } else {
+                    messages.forEach(msg => {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = `message ${msg.role}`;
+                        messageDiv.innerHTML = `
+                            ${msg.content}
+                            <div class="message-time">${new Date(msg.created_at).toLocaleTimeString()}</div>
+                        `;
+                        chatContainer.appendChild(messageDiv);
+                    });
+                    
+                    // Check if we're waiting for a response (last message is from user)
+                    const lastMessage = messages[messages.length - 1];
+                    if (lastMessage && lastMessage.role === 'user') {
+                        // Still waiting for assistant response - add loading indicator
+                        const loadingDiv = document.createElement('div');
+                        loadingDiv.className = 'loading-message';
+                        loadingDiv.innerHTML = 'Working<span class="loading-dots"></span>';
+                        chatContainer.appendChild(loadingDiv);
+                    }
+                    
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }
+            } catch (error) {
+                console.error('Error loading messages:', error);
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message || !currentConversationId) return;
+            
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+            
+            try {
+                
+                await fetch(`${API_URL}/conversations/${currentConversationId}/messages`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({message})
+                });
+                
+                input.value = '';
+                
+                // Manually add the user message and loading indicator
+                const chatContainer = document.getElementById('chatContainer');
+                
+                // Add user message
+                const userDiv = document.createElement('div');
+                userDiv.className = 'message user';
+                userDiv.innerHTML = `${message}<div class="message-time">${new Date().toLocaleTimeString()}</div>`;
+                chatContainer.appendChild(userDiv);
+                
+                // Add loading indicator
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'loading-message';
+                loadingDiv.innerHTML = 'Working<span class="loading-dots"></span>';
+                chatContainer.appendChild(loadingDiv);
+                
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+                loadConversations();
+            } catch (error) {
+                console.error('Error sending message:', error);
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function startPolling() {
+            // Clear existing interval
+            if (pollInterval) {
+                clearInterval(pollInterval);
+            }
+            
+            // Poll for new messages every 2 seconds
+            pollInterval = setInterval(() => {
+                if (currentConversationId) {
+                    loadMessages();
+                }
+            }, 2000);
+        }
+
+        // Stop polling when page is hidden
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && pollInterval) {
+                clearInterval(pollInterval);
+            } else if (!document.hidden && currentConversationId) {
+                startPolling();
+            }
+        });
+    </script>
+</body>
+</html>

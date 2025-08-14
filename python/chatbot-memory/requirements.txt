@@ -1,0 +1,8 @@
+hyrex
+python-dotenv
+psycopg[binary]
+pgvector
+fastapi
+uvicorn[standard]
+openai
+numpy
