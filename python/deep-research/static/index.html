@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Research System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .question-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .question-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .depth-selector {
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        
+        .depth-selector:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .research-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .research-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .research-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .status-section.active {
+            display: block;
+        }
+        
+        .status-header {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .status-message {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            animation: progress 2s ease-in-out infinite;
+        }
+        
+        @keyframes progress {
+            0% { width: 0%; }
+            50% { width: 100%; }
+            100% { width: 0%; }
+        }
+        
+        .results-section {
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .results-section.active {
+            display: block;
+        }
+        
+        .result-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .result-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .result-content {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .executive-summary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .themes-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .theme-tag {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        
+        .source-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .source-title {
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .source-snippet {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        
+        .source-url {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.85em;
+        }
+        
+        .source-url:hover {
+            text-decoration: underline;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Deep Research System</h1>
+        <p class="subtitle">Powered by Hyrex task orchestration and free search APIs</p>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    id="questionInput" 
+                    class="question-input" 
+                    placeholder="Enter your research question..."
+                    onkeypress="handleKeyPress(event)"
+                >
+                <select id="depthSelector" class="depth-selector">
+                    <option value="quick">Quick (2 sub-questions)</option>
+                    <option value="standard" selected>Standard (4 sub-questions)</option>
+                    <option value="deep">Deep (6 sub-questions + academic)</option>
+                </select>
+            </div>
+            <button id="researchBtn" class="research-btn" onclick="startResearch()">
+                Start Research
+            </button>
+        </div>
+        
+        <div id="statusSection" class="status-section">
+            <div class="status-header">Research Status</div>
+            <div id="statusMessage" class="status-message"></div>
+            <div class="progress-bar">
+                <div class="progress-bar-fill"></div>
+            </div>
+        </div>
+        
+        <div id="resultsSection" class="results-section">
+            <!-- Results will be inserted here -->
+        </div>
+        
+        <div id="errorSection"></div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:8000/api';
+        let currentTaskId = null;
+        let pollInterval = null;
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                startResearch();
+            }
+        }
+        
+        async function startResearch() {
+            const questionInput = document.getElementById('questionInput');
+            const depthSelector = document.getElementById('depthSelector');
+            const researchBtn = document.getElementById('researchBtn');
+            const statusSection = document.getElementById('statusSection');
+            const resultsSection = document.getElementById('resultsSection');
+            const errorSection = document.getElementById('errorSection');
+            
+            const question = questionInput.value.trim();
+            
+            if (!question) {
+                showError('Please enter a research question');
+                return;
+            }
+            
+            // Clear previous results
+            resultsSection.innerHTML = '';
+            resultsSection.classList.remove('active');
+            errorSection.innerHTML = '';
+            
+            // Disable input
+            researchBtn.disabled = true;
+            researchBtn.textContent = 'Researching...';
+            
+            // Show status
+            statusSection.classList.add('active');
+            updateStatus('Initiating research...');
+            
+            try {
+                // Start the research task
+                const startResponse = await fetch(`${API_URL}/research`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        question: question,
+                        depth: depthSelector.value
+                    })
+                });
+                
+                if (!startResponse.ok) {
+                    throw new Error(`HTTP error! status: ${startResponse.status}`);
+                }
+                
+                const startData = await startResponse.json();
+                const taskId = startData.task_id;
+                
+                updateStatus('Research in progress... Please wait (this may take 30-60 seconds)');
+                
+                // Poll for result
+                let attempts = 0;
+                const maxAttempts = 30;  // 60 seconds with 2-second intervals
+                
+                const pollInterval = setInterval(async () => {
+                    attempts++;
+                    
+                    try {
+                        const statusResponse = await fetch(`${API_URL}/research/${taskId}`);
+                        const statusData = await statusResponse.json();
+                        
+                        if (statusData.status === 'completed' && statusData.result) {
+                            clearInterval(pollInterval);
+                            displayResults(statusData.result);
+                            statusSection.classList.remove('active');
+                        } else if (attempts >= maxAttempts) {
+                            clearInterval(pollInterval);
+                            throw new Error('Research timed out');
+                        }
+                    } catch (error) {
+                        clearInterval(pollInterval);
+                        throw error;
+                    }
+                }, 2000);  // Poll every 2 seconds
+                
+            } catch (error) {
+                console.error('Research error:', error);
+                showError(`Failed to complete research: ${error.message}`);
+                statusSection.classList.remove('active');
+            } finally {
+                researchBtn.disabled = false;
+                researchBtn.textContent = 'Start Research';
+            }
+        }
+        
+        function updateStatus(message) {
+            document.getElementById('statusMessage').textContent = message;
+        }
+        
+        function displayResults(result) {
+            const resultsSection = document.getElementById('resultsSection');
+            
+            let html = '<h2 style="margin-bottom: 20px;">📊 Research Results</h2>';
+            
+            // Executive Summary
+            if (result.executive_summary) {
+                html += `
+                    <div class="executive-summary">
+                        <h3>Executive Summary</h3>
+                        <p>${result.executive_summary}</p>
+                    </div>
+                `;
+            }
+            
+            // Key Themes
+            if (result.key_themes && result.key_themes.length > 0) {
+                html += `
+                    <div class="result-card">
+                        <div class="result-title">🏷️ Key Themes</div>
+                        <div class="themes-container">
+                            ${result.key_themes.map(theme => 
+                                `<span class="theme-tag">${theme}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Key Insights
+            if (result.key_insights && result.key_insights.length > 0) {
+                html += `
+                    <div class="result-card">
+                        <div class="result-title">💡 Key Insights</div>
+                        <ul class="result-content">
+                            ${result.key_insights.map(insight => 
+                                `<li>${insight}</li>`
+                            ).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            // Sub-questions explored
+            if (result.sub_questions_explored && result.sub_questions_explored.length > 0) {
+                html += `
+                    <div class="result-card">
+                        <div class="result-title">🔍 Questions Explored</div>
+                        <ul class="result-content">
+                            ${result.sub_questions_explored.map(q => 
+                                `<li>${q}</li>`
+                            ).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            // Top Sources
+            if (result.top_sources && result.top_sources.length > 0) {
+                html += `
+                    <div class="result-card">
+                        <div class="result-title">📚 Top Sources</div>
+                        <div class="result-content">
+                            ${result.top_sources.map(source => `
+                                <div class="source-item">
+                                    <div class="source-title">${source.title || 'Untitled'}</div>
+                                    <div class="source-snippet">${(source.snippet || '').substring(0, 200)}...</div>
+                                    ${source.url ? `<a href="${source.url}" target="_blank" class="source-url">${source.url}</a>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Statistics
+            html += `
+                <div class="result-card">
+                    <div class="result-title">📈 Research Statistics</div>
+                    <div class="result-content">
+                        <p>• Total sources analyzed: ${result.total_sources_analyzed || 0}</p>
+                        <p>• Research depth: ${result.research_depth || 'standard'}</p>
+                        <p>• Completed at: ${new Date(result.timestamp).toLocaleString()}</p>
+                    </div>
+                </div>
+            `;
+            
+            resultsSection.innerHTML = html;
+            resultsSection.classList.add('active');
+        }
+        
+        function showError(message) {
+            const errorSection = document.getElementById('errorSection');
+            errorSection.innerHTML = `<div class="error-message">⚠️ ${message}</div>`;
+        }
+        
+        // Sample questions for testing
+        const sampleQuestions = [
+            "What are the latest developments in renewable energy?",
+            "How does quantum computing work?",
+            "What are the health benefits of meditation?",
+            "What is the future of artificial intelligence?",
+            "How can we address climate change?",
+            "What are the newest discoveries in space exploration?"
+        ];
+        
+        // Set a random sample question as placeholder
+        window.addEventListener('DOMContentLoaded', () => {
+            const randomQuestion = sampleQuestions[Math.floor(Math.random() * sampleQuestions.length)];
+            document.getElementById('questionInput').placeholder = `Try: "${randomQuestion}"`;
+        });
+    </script>
+</body>
+</html>
