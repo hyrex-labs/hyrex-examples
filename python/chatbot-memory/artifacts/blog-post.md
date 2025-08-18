@@ -184,12 +184,19 @@ Note how memory extraction happens after the response is delivered—it doesn't 
 
 The frontend is built with vanilla JavaScript and uses polling for real-time message updates. The clean, responsive interface provides two main views:
 
-- **Conversation View**: Shows the chat history with the AI assistant remembering facts from previous conversations
-- **Memory View**: Displays all extracted memories with the ability to manually delete incorrect or outdated facts
+### Conversation View
+Shows the chat history with the AI assistant remembering facts from previous conversations. Notice how the assistant recalls that Skip is allergic to shellfish when asked about a lobster dinner:
 
-<img src="chatbot-conversation.png" alt="Chatbot conversation view showing the AI remembering details about a user's dog" width="600">
+<p align="center">
+  <img src="chatbot-conversation.png" alt="Chatbot conversation view showing the AI remembering details about a user's dog" width="700" style="border: 1px solid #e1e4e8; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.12);">
+</p>
 
-<img src="chatbot-memories.png" alt="Memory management interface showing stored facts about the user" width="600">
+### Memory View  
+Displays all extracted memories with the ability to manually delete incorrect or outdated facts. Each memory shows when it was learned and can be individually removed:
+
+<p align="center">
+  <img src="chatbot-memories.png" alt="Memory management interface showing stored facts about the user" width="700" style="border: 1px solid #e1e4e8; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.12);">
+</p>
 
 ## Memory System Deep Dive
 
