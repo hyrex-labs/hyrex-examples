@@ -97,9 +97,13 @@ def process_message(conversation_id: int, message: str):
         semantic_task = search_semantic_memories.send(query_embedding, limit=3)
         random_task = get_random_memories.send(limit=2)
         
-        # Wait for both tasks to complete and extract results
-        semantic_result = semantic_task.wait()
-        random_result = random_task.wait()
+        # Wait for both tasks to complete
+        semantic_task.wait()
+        random_task.wait()
+        
+        # Get the actual results after waiting
+        semantic_result = semantic_task.get_result()
+        random_result = random_task.get_result()
         
         # Extract the actual memories from the dict wrapper
         relevant_memories = semantic_result.get("result", []) if semantic_result else []
@@ -111,7 +115,7 @@ def process_message(conversation_id: int, message: str):
         recent_history = db.get_conversation_history(conversation_id, limit=MAX_HISTORY_MESSAGES)
         
         # Build system prompt with memories
-        system_content = "You are a helpful assistant. Keep your responses concise and to the point. Avoid unnecessary elaboration unless specifically asked for more detail."
+        system_content = "You are a helpful assistant. Prefer brief responses (1-3 sentences) unless the conversation benefits from more detail."
         
         # Add relevant memories if any
         if relevant_memories:
@@ -205,7 +209,17 @@ BAD examples (DO NOT extract):
 User message:
 {user_message}
 
-List 1-3 SIGNIFICANT facts about the user as a person (one per line). If there are no significant long-term facts about the user, respond with 'NONE'."""
+List 1-3 SIGNIFICANT facts about the user as a person (one per line, NO NUMBERING or bullet points - just the plain fact). If there are no significant long-term facts about the user, respond with 'NONE'.
+
+Example of correct format:
+The user works as a software engineer
+The user lives in San Francisco
+The user prefers Python over JavaScript
+
+Example of INCORRECT format (do not do this):
+1. The user works as a software engineer
+2. The user lives in San Francisco
+- The user prefers Python over JavaScript"""
         
         completion = client.chat.completions.create(
             model="gpt-4",
