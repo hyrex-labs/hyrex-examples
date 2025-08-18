@@ -187,9 +187,9 @@ The frontend is built with vanilla JavaScript and uses polling for real-time mes
 - **Conversation View**: Shows the chat history with the AI assistant remembering facts from previous conversations
 - **Memory View**: Displays all extracted memories with the ability to manually delete incorrect or outdated facts
 
-![Chatbot conversation view showing the AI remembering details about a user's dog](artifacts/chatbot-conversation.png)
+<img src="chatbot-conversation.png" alt="Chatbot conversation view showing the AI remembering details about a user's dog" width="600">
 
-![Memory management interface showing stored facts about the user](artifacts/chatbot-memories.png)
+<img src="chatbot-memories.png" alt="Memory management interface showing stored facts about the user" width="600">
 
 ## Memory System Deep Dive
 
