@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import os
@@ -24,6 +25,11 @@ db = ChatDatabase()
 
 class MessageRequest(BaseModel):
     message: str
+
+@app.get("/")
+def root():
+    """Redirect root to frontend."""
+    return RedirectResponse(url="/frontend/")
 
 @app.post("/api/conversations")
 def create_conversation():
