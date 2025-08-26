@@ -2,6 +2,17 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+### Environment Setup
+
+1. Copy the `.env.example` to `.env`:
+```bash
+cp .env.example .env
+```
+
+2. Set your `HYREX_API_KEY` in the `.env` file. You'll need to obtain an API key from Hyrex.
+
+### Running the Application
+
 First, run the development server:
 
 ```bash
@@ -19,6 +30,20 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Hyrex Integration
+
+This project includes [Hyrex](https://hyrex.io), a framework for building distributed, durable tasks and workflows. Hyrex provides features like automatic task retries, distributed key-value storage, cron scheduling, and workflow orchestration.
+
+### Running the Hyrex Worker
+
+To run the Hyrex worker, use the following command:
+
+```bash
+npx hyrex run-worker hyrex/hyrex-app.ts
+```
+
+This will start the Hyrex worker that processes your defined tasks and workflows.
 
 ## Learn More
 
