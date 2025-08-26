@@ -13,13 +13,13 @@ const helloWorldTask = hy.task({
     func: async (input: { name?: string }) => {
         const ctx = getHyrexContext();
         const name = input.name || 'World';
-        
+
         console.log(`Task ID: ${ctx.taskId}`);
         console.log(`Hello, ${name}! Welcome to Hyrex!`);
-        
+
         // Simulate some work
         await new Promise(resolve => setTimeout(resolve, 2000));
-        
+
         return {
             message: `Successfully greeted ${name}`,
             timestamp: new Date().toISOString(),
@@ -28,22 +28,9 @@ const helloWorldTask = hy.task({
     }
 });
 
-// Define a cron task that runs every minute
-const heartbeatTask = hy.task({
-    name: 'heartbeat',
-    config: {
-        queue: 'monitoring',
-        cron: '* * * * *', // Every minute
-        timeoutSeconds: 10,
-    },
-    func: async () => {
-        console.log(`Heartbeat at ${new Date().toISOString()}`);
-        return { status: 'healthy' };
-    }
-});
 
 // Export tasks for easy access
-export { helloWorldTask, heartbeatTask };
+export { helloWorldTask };
 
 // Example usage (uncomment to test):
 // if (process.argv.includes('--submit')) {
