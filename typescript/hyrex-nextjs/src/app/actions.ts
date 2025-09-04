@@ -1,6 +1,7 @@
 'use server';
 
-import { helloWorldTask } from '../../hyrex/app';
+import { helloWorldTask } from '../../hyrex/tasks';
+import { OnboardUserWorkflow } from '../../hyrex/workflows';
 
 export async function triggerHelloWorld(name?: string) {
   try {
@@ -16,6 +17,24 @@ export async function triggerHelloWorld(name?: string) {
     return {
       success: false,
       error: 'Failed to trigger task'
+    };
+  }
+}
+
+export async function triggerUserOnboarding() {
+  try {
+    const workflowId = await OnboardUserWorkflow.send();
+
+    return {
+      success: true,
+      message: `User onboarding workflow started`,
+      workflowId
+    };
+  } catch (error) {
+    console.error('Error triggering user onboarding workflow:', error);
+    return {
+      success: false,
+      error: 'Failed to trigger onboarding workflow'
     };
   }
 }
