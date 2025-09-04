@@ -9,7 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@hyrex/hyrex": "^0.1.51",
+    "@hyrex/hyrex": "0.1.52",
     "next": "15.5.0",
     "react": "19.1.0",
     "react-dom": "19.1.0"
