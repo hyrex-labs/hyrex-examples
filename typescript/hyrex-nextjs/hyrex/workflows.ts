@@ -12,7 +12,7 @@ const initiateOnboard = workflowRegistry.task({
         const ctx = getHyrexContext();
         console.log(`[${ctx.taskId}] Starting onboarding process`);
 
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 3000));
 
         return {
             onboardingStarted: true,
@@ -31,7 +31,7 @@ const validatePayment = workflowRegistry.task({
         const ctx = getHyrexContext();
         console.log(`[${ctx.taskId}] Validating payment`);
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 5000));
 
         const paymentValid = Math.random() > 0.1;
 
@@ -53,7 +53,7 @@ const validateIdentity = workflowRegistry.task({
         const ctx = getHyrexContext();
         console.log(`[${ctx.taskId}] Validating identity`);
 
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 4000));
 
         const identityScore = Math.floor(Math.random() * 100);
 
@@ -76,7 +76,7 @@ const validateOrg = workflowRegistry.task({
         const ctx = getHyrexContext();
         console.log(`[${ctx.taskId}] Validating organization`);
 
-        await new Promise(resolve => setTimeout(resolve, 800));
+        await new Promise(resolve => setTimeout(resolve, 4000));
 
         const isValidOrg = Math.random() > 0.5;
 
@@ -110,7 +110,7 @@ const checkCredit = workflowRegistry.task({
         }
 
         console.log(`[${ctx.taskId}] Checking credit`);
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 5000));
 
         const creditScore = Math.floor(Math.random() * 350) + 500;
 
@@ -145,7 +145,7 @@ const trainCreditMachineLearningModel = workflowRegistry.task({
         }
 
         console.log(`[${ctx.taskId}] Training ML model`);
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        await new Promise(resolve => setTimeout(resolve, 5000));
 
         return {
             modelTrained: true,
@@ -166,7 +166,7 @@ const approveUser = workflowRegistry.task({
         const ctx = getHyrexContext();
         console.log(`[${ctx.taskId}] Making approval decision`);
 
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
         const approvalStatus = Math.random() > 0.2 ? 'approved' : 'rejected';
 

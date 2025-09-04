@@ -1,6 +1,6 @@
 'use server';
 
-import { helloWorldTask } from '../../hyrex/tasks';
+import { helloWorldTask, sendConfirmationEmailTask } from '../../hyrex/tasks';
 import { onboardUserWorkflow } from '../../hyrex/workflows';
 
 export async function triggerHelloWorld(name?: string) {
@@ -35,6 +35,24 @@ export async function triggerUserOnboarding() {
     return {
       success: false,
       error: 'Failed to trigger onboarding workflow'
+    };
+  }
+}
+
+export async function triggerSendConfirmationEmail(email: string) {
+  try {
+    const taskId = await sendConfirmationEmailTask.send({ email });
+
+    return {
+      success: true,
+      message: `Confirmation email task submitted for ${email}`,
+      taskId
+    };
+  } catch (error) {
+    console.error('Error triggering confirmation email task:', error);
+    return {
+      success: false,
+      error: 'Failed to send confirmation email'
     };
   }
 }

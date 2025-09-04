@@ -29,8 +29,36 @@ const helloWorldTask = hy.task({
 });
 
 
+// Define a confirmation email task
+const sendConfirmationEmailTask = hy.task({
+    name: 'sendConfirmationEmail',
+    config: {
+        queue: 'default',
+        timeoutSeconds: 30,
+    },
+    func: async (input: { email: string }) => {
+        const ctx = getHyrexContext();
+        const { email } = input;
+
+        console.log(`Task ID: ${ctx.taskId}`);
+        console.log(`Sending confirmation email to: ${email}`);
+
+        // Simulate email sending
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        console.log(`Confirmation email sent successfully to ${email}`);
+
+        return {
+            message: `Confirmation email sent to ${email}`,
+            timestamp: new Date().toISOString(),
+            taskId: ctx.taskId,
+            email
+        };
+    }
+});
+
 // Export tasks for easy access
-export { helloWorldTask };
+export { helloWorldTask, sendConfirmationEmailTask };
 
 // Example usage (uncomment to test):
 // if (process.argv.includes('--submit')) {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { triggerHelloWorld, triggerUserOnboarding } from "./actions";
+import { triggerSendConfirmationEmail, triggerUserOnboarding } from "./actions";
 
 type Toast = {
   id: number;
@@ -10,8 +10,11 @@ type Toast = {
 };
 
 export default function Home() {
-  const [loading, setLoading] = useState(false);
-  const [workflowLoading, setWorkflowLoading] = useState(false);
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+  const [joinLoading, setJoinLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [joinEmail, setJoinEmail] = useState('');
+  const [joinPassword, setJoinPassword] = useState('');
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const addToast = (message: string, type: 'success' | 'error') => {
@@ -26,64 +29,134 @@ export default function Home() {
     setToasts(prev => prev.filter(toast => toast.id !== id));
   };
 
-  const handleTriggerTask = async () => {
-    setLoading(true);
+  const handleNewsletterSignup = async () => {
+    if (!email || !email.includes('@')) {
+      addToast('Please enter a valid email address', 'error');
+      return;
+    }
+
+    setNewsletterLoading(true);
     
-    const response = await triggerHelloWorld("Hyrex User");
+    const response = await triggerSendConfirmationEmail(email);
     addToast(
       response.success ? response.message! : response.error!,
       response.success ? 'success' : 'error'
     );
-    setLoading(false);
+    
+    if (response.success) {
+      setEmail('');
+    }
+    
+    setNewsletterLoading(false);
   };
 
-  const handleTriggerWorkflow = async () => {
-    setWorkflowLoading(true);
+  const handleJoin = async () => {
+    if (!joinEmail || !joinEmail.includes('@')) {
+      addToast('Please enter a valid email address', 'error');
+      return;
+    }
+    
+    if (!joinPassword || joinPassword.length < 6) {
+      addToast('Password must be at least 6 characters long', 'error');
+      return;
+    }
+
+    setJoinLoading(true);
     
     const response = await triggerUserOnboarding();
     addToast(
       response.success ? response.message! : response.error!,
       response.success ? 'success' : 'error'
     );
-    setWorkflowLoading(false);
+    
+    if (response.success) {
+      setJoinEmail('');
+      setJoinPassword('');
+    }
+    
+    setJoinLoading(false);
   };
 
   return (
-    <div className="font-sans flex items-center justify-center min-h-screen p-8">
-      <main className="flex flex-col gap-8 items-center max-w-6xl w-full">
-        <h1 className="text-4xl font-bold text-center">Hyrex Task Runner</h1>
-        
-        <div className="w-full max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <section className="border p-4 rounded-lg">
-              <h2 className="text-xl font-semibold mb-3">Simple Task</h2>
-              <p className="text-center text-gray-600 dark:text-gray-400 mb-4">
-                Click the button below to trigger the Hello World task
-              </p>
+    <div className="font-sans flex items-center justify-center min-h-screen p-8 bg-gray-50 dark:bg-gray-900">
+      <main className="flex flex-col gap-8 items-center max-w-4xl w-full">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Hyrex Next.js Demo</h1>
+          <p className="text-gray-600 dark:text-gray-400">Get started with our platform</p>
+        </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-20 w-full max-w-4xl">
+          {/* Newsletter Signup */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 h-fit">
+            <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-white">📧 Newsletter</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6 text-sm">
+              Stay updated with our latest news and features
+            </p>
+            
+            <div className="space-y-4">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
+                onKeyDown={(e) => e.key === 'Enter' && handleNewsletterSignup()}
+              />
+              
               <button
-                onClick={handleTriggerTask}
-                disabled={loading}
-                className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-base h-12 px-8 w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleNewsletterSignup}
+                disabled={newsletterLoading}
+                className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Running..." : "Run Hello World Task"}
+                {newsletterLoading ? "Subscribing..." : "Subscribe to Newsletter"}
               </button>
-            </section>
+            </div>
+          </div>
 
-            <section className="border p-4 rounded-lg">
-              <h2 className="text-xl font-semibold mb-3">User Onboarding Workflow</h2>
-              <p className="text-center text-gray-600 dark:text-gray-400 mb-4">
-                Start a complex user onboarding workflow with parallel validations
-              </p>
-
+          {/* Join/Onboarding */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">🚀 Join Us</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">
+              Create your account and begin your journey with our onboarding process
+            </p>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={joinEmail}
+                  onChange={(e) => setJoinEmail(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  placeholder="Create a password (min 6 characters)"
+                  value={joinPassword}
+                  onChange={(e) => setJoinPassword(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+                  onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
+                />
+              </div>
+              
               <button
-                onClick={handleTriggerWorkflow}
-                disabled={workflowLoading}
-                className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-blue-600 text-white gap-2 hover:bg-blue-700 font-medium text-base h-12 px-8 w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleJoin}
+                disabled={joinLoading}
+                className="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {workflowLoading ? "Starting Workflow..." : "Start User Onboarding"}
+                {joinLoading ? "Starting Onboarding..." : "Join & Start Onboarding"}
               </button>
-            </section>
+            </div>
           </div>
         </div>
       </main>
