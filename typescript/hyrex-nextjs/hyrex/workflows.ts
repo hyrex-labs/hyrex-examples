@@ -11,9 +11,9 @@ const initiateOnboard = workflowRegistry.task({
     func: async () => {
         const ctx = getHyrexContext();
         console.log(`[${ctx.taskId}] Starting onboarding process`);
-        
+
         await new Promise(resolve => setTimeout(resolve, 500));
-        
+
         return {
             onboardingStarted: true,
             timestamp: new Date().toISOString()
@@ -30,11 +30,11 @@ const validatePayment = workflowRegistry.task({
     func: async () => {
         const ctx = getHyrexContext();
         console.log(`[${ctx.taskId}] Validating payment`);
-        
+
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         const paymentValid = Math.random() > 0.1;
-        
+
         return {
             paymentValid,
             paymentMethod: paymentValid ? 'credit_card' : null,
@@ -52,11 +52,11 @@ const validateIdentity = workflowRegistry.task({
     func: async () => {
         const ctx = getHyrexContext();
         console.log(`[${ctx.taskId}] Validating identity`);
-        
+
         await new Promise(resolve => setTimeout(resolve, 1500));
-        
+
         const identityScore = Math.floor(Math.random() * 100);
-        
+
         return {
             identityValid: identityScore > 30,
             identityScore,
@@ -75,11 +75,11 @@ const validateOrg = workflowRegistry.task({
     func: async () => {
         const ctx = getHyrexContext();
         console.log(`[${ctx.taskId}] Validating organization`);
-        
+
         await new Promise(resolve => setTimeout(resolve, 800));
-        
+
         const isValidOrg = Math.random() > 0.5;
-        
+
         return {
             organizationValid: isValidOrg,
             tier: isValidOrg ? 'enterprise' : 'individual',
@@ -96,9 +96,9 @@ const checkCredit = workflowRegistry.task({
     },
     func: async () => {
         const ctx = getHyrexContext();
-        
+
         const needsCreditCheck = Math.random() > 0.3;
-        
+
         if (!needsCreditCheck) {
             console.log(`[${ctx.taskId}] Credit check skipped`);
             return {
@@ -108,12 +108,12 @@ const checkCredit = workflowRegistry.task({
                 checkedAt: null
             };
         }
-        
+
         console.log(`[${ctx.taskId}] Checking credit`);
         await new Promise(resolve => setTimeout(resolve, 2000));
-        
+
         const creditScore = Math.floor(Math.random() * 350) + 500;
-        
+
         return {
             creditChecked: true,
             creditScore,
@@ -131,9 +131,9 @@ const trainCreditMachineLearningModel = workflowRegistry.task({
     },
     func: async () => {
         const ctx = getHyrexContext();
-        
+
         const hasCreditScore = Math.random() > 0.2;
-        
+
         if (!hasCreditScore) {
             console.log(`[${ctx.taskId}] No credit score available for training`);
             return {
@@ -143,10 +143,10 @@ const trainCreditMachineLearningModel = workflowRegistry.task({
                 trainedAt: null
             };
         }
-        
+
         console.log(`[${ctx.taskId}] Training ML model`);
         await new Promise(resolve => setTimeout(resolve, 3000));
-        
+
         return {
             modelTrained: true,
             modelVersion: 'v1.2.3',
@@ -165,11 +165,11 @@ const approveUser = workflowRegistry.task({
     func: async () => {
         const ctx = getHyrexContext();
         console.log(`[${ctx.taskId}] Making approval decision`);
-        
+
         await new Promise(resolve => setTimeout(resolve, 500));
-        
+
         const approvalStatus = Math.random() > 0.2 ? 'approved' : 'rejected';
-        
+
         return {
             approvalStatus,
             reasons: approvalStatus === 'approved' ? ['All validations passed'] : ['Random rejection for demo'],
@@ -179,7 +179,7 @@ const approveUser = workflowRegistry.task({
     }
 });
 
-export const OnboardUserWorkflow = workflowRegistry.workflow({
+export const onboardUserWorkflow = workflowRegistry.workflow({
     name: 'OnboardUser',
     config: {
         timeoutSeconds: 300,

@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hyrex_postgres
+    environment:
+      POSTGRES_USER: hyrex_user
+      POSTGRES_PASSWORD: hyrex_password
+      POSTGRES_DB: hyrex_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hyrex_user -d hyrex_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hyrex_network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hyrex_worker
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      HYREX_DATABASE_URL: postgresql://hyrex_user:hyrex_password@postgres:5432/hyrex_db
+      PYTHONUNBUFFERED: 1
+    volumes:
+      - ./:/app
+    networks:
+      - hyrex_network
+    restart: unless-stopped
+
+  studio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hyrex_studio
+    command: npx hyrex studio
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      HYREX_DATABASE_URL: postgresql://hyrex_user:hyrex_password@postgres:5432/hyrex_db
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "1337:1337"
+    volumes:
+      - ./:/app
+    networks:
+      - hyrex_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  hyrex_network:
+    driver: bridge
